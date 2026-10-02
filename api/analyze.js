@@ -204,7 +204,7 @@ module.exports = async function handler(req, res) {
       visitor_id: visitorId,
       ip_hash: ipHash,
       background,
-      input: jd.slice(0, 4000),
+      input: refused ? "[not a job description: text not stored]" : jd.slice(0, 4000).replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, "[email removed]"),
       output: result,
       skills: refused ? [] : (result.core_skills || []).slice(0, 5),
       refused,
