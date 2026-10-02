@@ -9,7 +9,7 @@
 
 const crypto = require("crypto");
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 const MAX_OUTPUT_TOKENS = 350;
 const REQUESTS_PER_VISITOR = 3;
 const TABLE = "scans";
