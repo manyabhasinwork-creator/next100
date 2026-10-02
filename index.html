@@ -167,9 +167,7 @@
   .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   label { font-weight: 600; display: block; margin-bottom: 8px; }
   textarea { width: 100%; min-height: 170px; border-radius: var(--radius-sm); border: 1.5px solid var(--line); background: var(--blush); padding: 14px; font-family: var(--body); font-size: 1rem; color: var(--ink-soft); resize: vertical; }
-  textarea:disabled { cursor: not-allowed; }
   .scan-foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 22px; }
-  .scan-foot button { opacity: .5; cursor: not-allowed; }
   .scan-foot p { color: var(--ink-soft); font-size: .95rem; }
 
   /* Footer */
@@ -178,6 +176,35 @@
   footer .btn { margin-top: 28px; }
   .small { margin-top: 64px; font-size: .88rem; color: var(--ink-soft); }
   .small p { margin: 0 auto; }
+
+
+  /* Live scan */
+  .selects { display: grid; gap: 6px; align-content: start; }
+  .selects label { margin-top: 6px; }
+  select { width: 100%; border-radius: var(--radius-sm); border: 1.5px solid var(--line); background: var(--blush); padding: 11px 12px; font-family: var(--body); font-size: 1rem; color: var(--ink); }
+  textarea:not(:disabled) { color: var(--ink); cursor: text; }
+  .linkish { background: none; border: none; color: var(--ink); text-decoration: underline; font: inherit; font-size: .95rem; margin-top: 8px; cursor: pointer; padding: 0; }
+  #scanBtn[disabled] { opacity: .55; cursor: wait; }
+  .result { margin-top: 28px; border-top: 1px dashed var(--line); padding-top: 26px; }
+  .result h3 { margin-bottom: 6px; }
+  .result .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 18px; }
+  .result .tag { font-size: .9rem; border-radius: 999px; padding: 4px 12px; background: var(--marigold-soft); }
+  .result .tag.wish { background: transparent; border: 1.5px dashed var(--coral); color: #A4503F; }
+  .gap { background: var(--blush); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 10px; }
+  .gap strong { display: block; }
+  .result .proof { margin-top: 18px; }
+  .result .note { color: var(--ink-soft); font-size: .9rem; margin-top: 14px; }
+  .refusal { background: var(--coral-soft); border-radius: var(--radius-sm); padding: 16px 18px; }
+  .stats { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 28px; margin-top: 28px; background: var(--ink); color: var(--paper); border-radius: var(--radius-lg); padding: 36px 40px; align-items: center; }
+  .stat-num span { display: block; font-family: var(--display); font-weight: 800; font-size: clamp(3rem, 7vw, 4.6rem); line-height: 1; color: var(--marigold); }
+  .stat-num small { font-size: 1rem; color: #C9D6D4; }
+  .stat-list h3 { color: var(--paper); }
+  .stat-note { color: #C9D6D4; font-size: .9rem; margin: 4px 0 12px; }
+  .stat-list ol { padding-left: 22px; display: grid; gap: 6px; }
+  .stat-list li::marker { color: var(--marigold); font-weight: 700; }
+  .stat-list .count { color: #C9D6D4; font-size: .9rem; margin-left: 6px; }
+  .muted { color: #C9D6D4; }
+  @media (max-width: 860px) { .stats { grid-template-columns: 1fr; padding: 28px 22px; } }
 
   @media (max-width: 860px) {
     section { padding: 72px 0; }
@@ -213,7 +240,7 @@
         <a href="#scan" class="btn btn-primary">Try the free scan</a>
         <a href="#how" class="btn btn-quiet">See how it works</a>
       </div>
-      <p class="fine">Free. Paste your CV bullets and one job description.</p>
+      <p class="fine">Free. Paste a job description and pick your background. <span id="heroCount"></span></p>
     </div>
 
     <div class="jd" aria-label="Example job description with common requirements highlighted and a wishlist item crossed out">
@@ -260,12 +287,12 @@
     <p class="lede">Three steps, a few minutes, no sign-up.</p>
     <div class="steps">
       <div class="step">
-        <h3>Paste your CV bullets</h3>
-        <p>Your five strongest bullets are enough. No sign-up needed.</p>
+        <h3>Pick your background</h3>
+        <p>Four quick dropdowns. No CV, no sign-up, nothing personal stored.</p>
       </div>
       <div class="step">
         <h3>Paste a job you want</h3>
-        <p>Any product analytics or strategy JD. We compare it with real JDs for the same role.</p>
+        <p>Any product analytics or strategy JD you're eyeing.</p>
       </div>
       <div class="step">
         <h3>Get your gaps and one proof piece</h3>
@@ -322,8 +349,8 @@
       <div class="compare-card us">
         <h3>Next 100</h3>
         <ul>
-          <li>Compares you with the market for that role</li>
           <li>Separates common requirements from wishlist items</li>
+          <li>Shows which skills are most in demand across JDs scanned this week</li>
           <li>Gives you one proof piece to build, ideally at your current job</li>
         </ul>
       </div>
@@ -350,7 +377,7 @@
         <span class="badge">Available now</span>
         <h3>Free scan</h3>
         <p class="price">₹0</p>
-        <p>One Gap Scan per role: your skill map, wishlist check and one proof piece.</p>
+        <p>Three free scans: your top gaps, a wishlist check and one proof piece.</p>
         <div class="spacer"></div>
         <a href="#scan" class="btn btn-primary">Try the free scan</a>
       </div>
@@ -373,21 +400,38 @@
 <section class="scan-live" id="scan">
   <div class="wrap">
     <h2>Try the free scan</h2>
-    <p class="lede">The live scan is being built right now. Here's what you'll paste in.</p>
+    <p class="lede">Paste a job description, tell us where you're coming from, and see your three biggest gaps.</p>
     <div class="scan-box">
       <div class="fields">
         <div>
-          <label for="cv">Your CV bullets</label>
-          <textarea id="cv" disabled placeholder="Paste your five strongest CV bullets"></textarea>
-        </div>
-        <div>
           <label for="jdtext">Job description</label>
-          <textarea id="jdtext" disabled placeholder="Paste the job description you're aiming for"></textarea>
+          <textarea id="jdtext" maxlength="6000" placeholder="Paste the job description you're aiming for"></textarea>
+          <button type="button" class="linkish" id="sampleBtn">Use a sample JD instead</button>
+        </div>
+        <div class="selects">
+          <label for="role">Current role</label>
+          <select id="role"><option>Big 4 / audit</option><option>Consulting</option><option>Finance / FP&amp;A</option><option>Operations</option><option>Marketing</option><option>Other</option></select>
+          <label for="years">Years of experience</label>
+          <select id="years"><option>0-2</option><option selected>2-5</option><option>5-8</option><option>8+</option></select>
+          <label for="strength">Strongest area</label>
+          <select id="strength"><option>Excel and financial modelling</option><option>Stakeholder reporting</option><option>Client management</option><option>SQL or data analysis</option><option>Presentations and storytelling</option><option>Process improvement</option></select>
+          <label for="target">Aiming for</label>
+          <select id="target"><option>Product analytics</option><option>Strategy</option><option>Business analytics</option><option>Other</option></select>
         </div>
       </div>
       <div class="scan-foot">
-        <button class="btn btn-primary" disabled>Scan my fit</button>
-        <p>Live scan coming soon.</p>
+        <button class="btn btn-primary" id="scanBtn" type="button">Scan my fit</button>
+        <p id="status" role="status">3 free scans per visitor. We store the JD and your dropdown choices, never your name or CV.</p>
+      </div>
+      <div id="result" class="result" hidden></div>
+    </div>
+
+    <div class="stats" aria-live="polite">
+      <div class="stat-num"><span id="totalScans">...</span><small>scans run so far</small></div>
+      <div class="stat-list">
+        <h3>Most demanded skills this week</h3>
+        <p class="stat-note">Counted from every JD scanned on Next 100 in the last 7 days.</p>
+        <ol id="topSkills"><li class="muted">Loading live data...</li></ol>
       </div>
     </div>
   </div>
@@ -403,5 +447,79 @@
   </div>
 </footer>
 
+<script>
+(function () {
+  var SAMPLE = "Product Analyst, Global Capability Centre, Bengaluru\n\nAbout the role\nYou will partner with product managers to understand how customers use our digital products and turn data into decisions.\n\nWhat you'll do\n- Define and track product KPIs and build dashboards for product teams\n- Write SQL to analyse user behaviour and feature adoption\n- Design, run and read A/B tests with product managers\n- Present insights and recommendations to senior stakeholders\n\nWhat we're looking for\n- 3 to 6 years in analytics, consulting or a similar role\n- Strong SQL and comfort with Python or R\n- Experience with experimentation and basic statistics\n- Clear communication with non-technical stakeholders\n- Nice to have: experience with Amplitude or Mixpanel, and a certification in our in-house BI tool";
+
+  var visitorId = "v-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  try {
+    var saved = localStorage.getItem("next100_visitor");
+    if (saved) { visitorId = saved; } else { localStorage.setItem("next100_visitor", visitorId); }
+  } catch (e) {}
+
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+
+  function renderStats(st) {
+    if (!st) return;
+    $("totalScans").textContent = st.totalScans;
+    $("heroCount").textContent = st.totalScans > 0 ? st.totalScans + " scans run so far." : "";
+    var ol = $("topSkills"); ol.innerHTML = "";
+    if (!st.topSkills || !st.topSkills.length) { ol.appendChild(el("li", "muted", "No scans yet this week. Yours could be the first.")); return; }
+    st.topSkills.forEach(function (t) {
+      var li = el("li", null, t.skill.charAt(0).toUpperCase() + t.skill.slice(1));
+      li.appendChild(el("span", "count", "in " + t.count + (t.count === 1 ? " scan" : " scans")));
+      ol.appendChild(li);
+    });
+  }
+
+  function loadStats() {
+    fetch("/api/analyze").then(function (r) { return r.json(); }).then(renderStats).catch(function () {
+      $("topSkills").innerHTML = ""; $("topSkills").appendChild(el("li", "muted", "Live data unavailable right now."));
+    });
+  }
+
+  function renderResult(r) {
+    var box = $("result"); box.innerHTML = ""; box.hidden = false;
+    if (r.is_job_description === false) {
+      box.appendChild(el("div", "refusal", r.refusal_message || "That doesn't look like a job description. Paste a JD and try again."));
+      return;
+    }
+    box.appendChild(el("h3", null, r.role_title || "Your scan"));
+    box.appendChild(el("p", "note", "Core asks in this JD"));
+    var tags = el("div", "tags");
+    (r.core_skills || []).forEach(function (s) { tags.appendChild(el("span", "tag", s)); });
+    (r.wishlist || []).forEach(function (s) { tags.appendChild(el("span", "tag wish", "Wishlist: " + s)); });
+    box.appendChild(tags);
+    box.appendChild(el("h3", null, "Your three biggest gaps"));
+    (r.gaps || []).forEach(function (g) {
+      var d = el("div", "gap"); d.appendChild(el("strong", null, g.skill)); d.appendChild(el("span", null, g.why)); box.appendChild(d);
+    });
+    var p = el("div", "proof"); p.appendChild(el("strong", null, "Your proof piece")); p.appendChild(document.createTextNode(r.proof_piece || "")); box.appendChild(p);
+    box.appendChild(el("p", "note", "Gaps are estimated from your dropdown choices and the JD, and the wishlist call is an AI estimate. Use it as a starting point, not a verdict."));
+  }
+
+  $("sampleBtn").addEventListener("click", function () { $("jdtext").value = SAMPLE; $("jdtext").focus(); });
+
+  $("scanBtn").addEventListener("click", function () {
+    var jd = $("jdtext").value.trim();
+    if (jd.length < 150) { $("status").textContent = "Paste a full job description first (or use the sample)."; return; }
+    var btn = $("scanBtn"); btn.disabled = true; btn.textContent = "Scanning..."; $("status").textContent = "Reading the JD. This takes a few seconds.";
+    fetch("/api/analyze", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jd: jd, role: $("role").value, years: $("years").value, strength: $("strength").value, target: $("target").value, visitorId: visitorId })
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (x) {
+        if (!x.ok) { $("status").textContent = x.d.error || "Something went wrong."; return; }
+        renderResult(x.d.result); renderStats(x.d.stats);
+        $("status").textContent = x.d.scansLeft + (x.d.scansLeft === 1 ? " free scan left." : " free scans left.");
+      })
+      .catch(function () { $("status").textContent = "Couldn't reach the scanner. Check your connection and try again."; })
+      .finally(function () { btn.disabled = false; btn.textContent = "Scan my fit"; });
+  });
+
+  loadStats();
+})();
+</script>
 </body>
 </html>
